@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History on Any Date</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #333;
+      color: white;
+      padding: 20px;
+    }
+    section {
+      margin: 40px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    .history-box {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 60%;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📅 History on Any Date</h1>
+    <p>Find out what happened on any day in history!</p>
+  </header>
+
+  <section>
+    <input type="date" id="dateInput">
+    <button onclick="fetchHistory()">Show History</button>
+    <div id="historyResult"></div>
+  </section>
+
+  <script>
+    async function fetchHistory() {
+      const dateInput = document.getElementById("dateInput").value;
+      const resultDiv = document.getElementById("historyResult");
+      resultDiv.innerHTML = "";
+
+      if (!dateInput) {
+        resultDiv.innerHTML = "<p>Please select a date.</p>";
+        return;
+      }
+
+      const date = new Date(dateInput);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      try {
+        const response = await fetch(`https://history.muffinlabs.com/date/${month}/${day}`);
+        const data = await response.json();
+
+        if (data && data.data && data.data.Events) {
+          data.data.Events.slice(0, 5).forEach(event => { // show top 5 events
+            let div = document.createElement("div");
+            div.className = "history-box";
+            div.innerHTML = `<strong>${event.year}</strong> – ${event.text}`;
+            resultDiv.appendChild(div);
+          });
+        } else {
+          resultDiv.innerHTML = "<p>No events found for this date.</p>";
+        }
+      } catch (error) {
+        resultDiv.innerHTML = "<p>⚠️ Error fetching history data.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
